@@ -190,32 +190,52 @@ jc_get_spend_param_multi_budget <- function(budget_codes, budgets_file,
 #'   \item 'total_length' total treatment length for category and period
 #'   \item 'total_perc' percentage of total length treatment for category
 #'   and period
-#'   \item 'budget_util' Percentage of budget utilised for category and period
+#'   \item 'budget_util' Percentage of budget utilised for category and period. 
+#'   NOTE - this column is only added when group_type = 'category'
 #' }
-#'
-#'
+#' 
+#' 
 #' @param treatments Data frame containing the treatments list exported by
 #' jcass.
 #' @param budget Data frame containing the budget.
 #' @param network_length Network length from which the percentage of length
 #' treatment etc. can be calculated.
+#' @param group_type specifies whether grouping of treatments is by treatment 
+#' category or by treatment type (more specific). Pass either 'category' or '
+#' treatment'
 #' @export
 #' @importFrom ggplot2 element_blank
 #'
-jc_get_spending_info <- function(treatments, budget, network_length) {
-  treat_cats <- unique(treatments$treat_category)
-  budgets_long <- budget %>% tidyr::gather(all_of(treat_cats),
-                                    key = "treat_category", value = "budget")
-  spend <- treatments %>% group_by(.data$treat_category, .data$period) %>%
-    summarise(
-      number = sum(!is.na(.data$treatment_cost)),
-      total_cost = sum(.data$treatment_cost),
-      total_length = sum(.data$loc_to - .data$loc_from)/1000,
-      total_perc = 100 * sum(.data$loc_to - .data$loc_from)/network_length
-    )
-  spend <- spend %>% dplyr::left_join(budgets_long, by = c("treat_category",
-                                                          "period"))
-  spend$budget_util <- 100 * spend$total_cost/spend$budget
+jc_get_spending_info <- function(treatments, budget, network_length,
+                                 group_type = "categories") {
+  
+  if (grepl( "cat", group_type, fixed = TRUE)) {
+    
+    treat_cats <- unique(treatments$treat_category)
+    budgets_long <- budget %>% tidyr::gather(all_of(treat_cats),
+                                             key = "treat_category", 
+                                             value = "budget")
+    spend <- treatments %>% group_by(.data$treat_category, .data$period) %>%
+      summarise(
+        number = sum(!is.na(.data$treatment_cost)),
+        total_cost = sum(.data$treatment_cost),
+        total_length = sum(.data$loc_to - .data$loc_from)/1000,
+        total_perc = 100 * sum(.data$loc_to - .data$loc_from)/network_length
+      )
+    spend <- spend %>% dplyr::left_join(budgets_long, 
+                                        by = c("treat_category", "period"))
+    spend$budget_util <- 100 * spend$total_cost/spend$budget
+    
+  } else {
+    
+    spend <- treatments %>% group_by(.data$treatment, .data$period) %>%
+      summarise(
+        number = sum(!is.na(.data$treatment_cost)),
+        total_cost = sum(.data$treatment_cost),
+        total_length = sum(.data$loc_to - .data$loc_from)/1000,
+        total_perc = 100 * sum(.data$loc_to - .data$loc_from)/network_length
+      )
+  }
   return(spend)
 }
 

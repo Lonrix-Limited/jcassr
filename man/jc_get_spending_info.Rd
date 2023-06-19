@@ -4,7 +4,12 @@
 \alias{jc_get_spending_info}
 \title{Gets a table summarising spending for a specific budget.}
 \usage{
-jc_get_spending_info(treatments, budget, network_length)
+jc_get_spending_info(
+  treatments,
+  budget,
+  network_length,
+  group_type = "categories"
+)
 }
 \arguments{
 \item{treatments}{Data frame containing the treatments list exported by
@@ -14,6 +19,10 @@ jcass.}
 
 \item{network_length}{Network length from which the percentage of length
 treatment etc. can be calculated.}
+
+\item{group_type}{specifies whether grouping of treatments is by treatment
+category or by treatment type (more specific). Pass either 'category' or '
+treatment'}
 }
 \description{
 \code{jc_get_spending_info} Gets a table that summarises spending grouped by
@@ -25,6 +34,7 @@ relating to the following parameters:
 \item 'total_length' total treatment length for category and period
 \item 'total_perc' percentage of total length treatment for category
 and period
-\item 'budget_util' Percentage of budget utilised for category and period
+\item 'budget_util' Percentage of budget utilised for category and period.
+NOTE - this column is only added when group_type = 'category'
 }
 }
