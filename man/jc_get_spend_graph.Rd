@@ -6,22 +6,31 @@
 \usage{
 jc_get_spend_graph(
   spending_info,
-  categories,
+  spend_param,
+  x_info,
   y_info,
+  categories,
   colours,
   line_types,
   line_width = 1,
-  legend_title = "Category"
+  legend_title = "Category",
+  scale_factor = 1
 )
 }
 \arguments{
 \item{spending_info}{Spending info retrieved with
 \code{link{jc_get_spending_info}}}
 
-\item{categories}{Vector of category names}
+\item{spend_param}{spending parameter to plot - this should be one of the
+columns in \code{spending_info}}
+
+\item{x_info}{List object containing attributes 'min', 'max', 'increm' and
+'title' for X-axis (recommend leaving x-title blank).}
 
 \item{y_info}{List object containing attributes 'min', 'max', 'increm' and
 'title' for Y-axis.}
+
+\item{categories}{Vector of category names to consider for the graph}
 
 \item{colours}{Vector of colour names to match category names}
 
@@ -32,8 +41,16 @@ values are: 'solid', 'dashed', 'dotted', dotdash', 'longdash' etc. ).}
 \item{line_width}{Line width for the lines. Try values in range 0.8 to 1.2.}
 
 \item{legend_title}{Title for the legend.}
+
+\item{scale_factor}{scaling factor for values to be plotted (e.g. use 1e6 to
+scale costs to $-million)}
 }
 \description{
 \code{jc_get_spend_graph} Gets ggplot object showing lines representing
 budget utilisation for different treatment categories over time.
+}
+\details{
+Note: this function will plot the specified column values vs the 'period'
+column. If you want the treatment period to be in terms of calendar-epochs,
+then you should adjust the period column BEFORE calling this function.
 }
