@@ -25,17 +25,21 @@
 jc_get_treat_counts <- function(elem_data, treatments, treat_codes, 
                                 sum_col_name = "any_treats") {
   for (treat_code in treat_codes) {
-    df[, treat_code] <- apply(elem_data, 1, .get_treat_count, treatments, treat_code)    
+    elem_data[, treat_code] <- apply(elem_data, 1, .get_treat_count, treatments, 
+                              treat_code)    
   }
-  
-  df[ , sum_col_name] = rowSums(df[, treat_codes], na.rm = TRUE)
-  return(df)
+  elem_data[ , sum_col_name] = rowSums(elem_data[, treat_codes], na.rm = TRUE)
+  return(elem_data)
 }
 
 .get_treat_count <- function(row, treatments, treat_code) {
   elem_index <- as.numeric(row[["elem_index"]])
   treats_on_elem <- treatments %>% 
     dplyr::filter(.data$elem_index == !!elem_index & 
-                  .data$treatment == !!treat_code)
-  return(nrow(treats_on_elem))
+                    .data$treatment == !!treat_code)
+  if (is.null(treats_on_elem)) {
+    return(0)
+  } else {
+    return(nrow(treats_on_elem)) 
+  }
 }
