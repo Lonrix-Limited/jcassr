@@ -9,6 +9,7 @@ jc_get_spend_param_multi_budget(
   budgets_file,
   spend_param,
   network_length,
+  max_calendar_period,
   treats_file_base = "outputs/treatments_"
 )
 }
@@ -38,6 +39,9 @@ across all periods
 
 \item{network_length}{Network length from which the percentage of length
 treatment etc. can be calculated.}
+
+\item{max_calendar_period}{maximum treatment period (in calendar terms) to
+consider.}
 
 \item{treats_file_base}{Relative path to the Excel file containing the
 treatments exported from jcass. This will not be the full file name, but only

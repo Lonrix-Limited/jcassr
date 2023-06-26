@@ -25,15 +25,18 @@
 #' @param budgets_file Relative path to the Excel file containing the budgets.
 #' @param network_length Network length from which the percentage of length
 #' treatment etc. can be calculated
+#' @param max_calendar_period maximum treatment period (in calendar terms) to 
+#' consider.
 #' @param treats_file_base Relative path to the Excel file containing the
 #' treatments exported from jcass. This will not be the full file name, but only
 #' the stub from which the full name can be built by appending the budget code
 #' at the end.
 #' @export
 #' @importFrom dplyr group_by
+#' @importFrom dplyr filter
 #'
 jc_get_spend_info_multi_budget <- function(budget_codes, budgets_file,
-                                      network_length,
+                                      network_length, max_calendar_period,
                                       treats_file_base = "outputs/treatments_") {
 
   result <- NULL
@@ -41,6 +44,8 @@ jc_get_spend_info_multi_budget <- function(budget_codes, budgets_file,
 
     # Now read the list of treatments triggered/selected by the model
     treats_data <- .jc_get_treatments(budget_code, treats_file_base)
+    treats_data <- treats_data %>% 
+      filter(.data$period_calendar <= max_calendar_period)
 
     budgets <- read_xlsx(budgets_file, budget_code,
                          .name_repair = "unique_quiet")
@@ -100,6 +105,8 @@ jc_get_spend_info_multi_budget <- function(budget_codes, budgets_file,
 #' }
 #' @param network_length Network length from which the percentage of length
 #' treatment etc. can be calculated.
+#' @param max_calendar_period maximum treatment period (in calendar terms) to 
+#' consider.
 #' @param treats_file_base Relative path to the Excel file containing the
 #' treatments exported from jcass. This will not be the full file name, but only
 #' the stub from which the full name can be built by appending the budget code
@@ -109,6 +116,7 @@ jc_get_spend_info_multi_budget <- function(budget_codes, budgets_file,
 #'
 jc_get_spend_param_multi_budget <- function(budget_codes, budgets_file,
                                             spend_param, network_length,
+                                            max_calendar_period, 
                                 treats_file_base = "outputs/treatments_") {
   result <- NULL
   lbl <- NULL
@@ -137,6 +145,8 @@ jc_get_spend_param_multi_budget <- function(budget_codes, budgets_file,
 
     # Now read the list of treatments triggered/selected by the model
     treats_data <- .jc_get_treatments(budget_code, treats_file_base)
+    treats_data <- treats_data %>% 
+      filter(.data$period_calendar <= max_calendar_period)
 
     budgets <- read_xlsx(budgets_file, budget_code,
                          .name_repair = "unique_quiet")
@@ -270,6 +280,8 @@ jc_get_spending_info <- function(treatments, budget, network_length,
 #' }
 #' @param network_length Network length from which the percentage of length
 #' treatment etc. can be calculated
+#' @param max_calendar_period maximum treatment period (in calendar terms) to 
+#' consider.
 #' @param treats_file_base Relative path to the Excel file containing the
 #' treatments exported from jcass. This will not be the full file name, but only
 #' the stub from which the full name can be built by appending the budget code
@@ -278,7 +290,7 @@ jc_get_spending_info <- function(treatments, budget, network_length,
 #' @importFrom ggplot2 element_blank
 #'
 jc_get_spend_summary_multi_budget <- function(budget_codes,
-     budgets_file, network_length,
+     budgets_file, network_length, max_calendar_period, 
      spend_params = c("avg_spend", "total_spend", "avg_perc", "total_perc",
                       "avg_length", "total_length"),
     treats_file_base = "outputs/treatments_") {
@@ -287,7 +299,7 @@ jc_get_spend_summary_multi_budget <- function(budget_codes,
   for (spend_param in spend_params) {
     tmp <- jc_get_spend_param_multi_budget(budget_codes,
                                           budgets_file, spend_param,
-                                          network_length)
+                                          network_length, max_calendar_period)
     if (is.null(result)) {
       result <- tmp
     } else {
