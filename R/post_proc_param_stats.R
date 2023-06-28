@@ -78,3 +78,76 @@ jc_get_param_stats_table <- function(param_data, epochs) {
 
   return (df)
 }
+
+
+#' Gets a table showing above and below threshold for a parameter.
+#'
+#' \code{jc_get_param_threshold_lengths} Gets a table showing the lengths and
+#' percentages above and below a given threshold for a specific model parameter.
+#' 
+#' Note: this function is relevant for elements in linear networks (e.g. road
+#' and water networks). For domains that require counts instead of lengths, please
+#' notify Lonrix and we can add an extension to this method that gives counts
+#' instead of lengths.
+#'
+#' @param param_data Data frame containing the data for the model parameter as
+#' loaded from the jcass output file.
+#' @param epochs Vector with the calendar epochs for which to get stats. The numbers
+#' in this vector must match the columns in the parameter output file, otherwise
+#' errors will occur.
+#' @param threshold threshold to evaluate
+#' @param from_col name of the from/start column for element lengths. This column
+#' must exist in your model output data (specified in model setup as an identifier
+#' column)
+#' @param to_col name of the to/end column for element lengths. This column
+#' must exist in your model output data (specified in model setup as an identifier
+#' column)
+#' @export
+#' @importFrom stats quantile
+#'
+jc_get_param_threshold_lengths <- function(param_data, epochs, threshold,
+                                            from_col, to_col) {
+  i <- 0
+  param_data <- as.data.frame(param_data)
+  ok <- .check_required_cols(c(from_col, to_col), 
+                            param_data, "lengths above threshold")
+  if (ok == FALSE) {stop("Required columns not found in parameter data")}
+  
+  param_data$tmp_length <- param_data[ , to_col] - param_data[ , from_col]
+  total_length <- sum(param_data$tmp_length)
+  
+  n_epochs <- length(epochs)
+  
+  aboves_length <- rep(NA, n_epochs)
+  belows_length <- rep(NA, n_epochs)
+  aboves_perc <- rep(NA, n_epochs)
+  belows_perc <- rep(NA, n_epochs)
+  
+  epochs <- as.character(epochs)
+  
+  i <- 1
+  for (epoch in epochs) {
+    
+    data_for_epoch <- as.numeric(param_data[, epoch])
+    
+    over_threshold <- param_data[which(data_for_epoch > threshold), "tmp_length"]
+    under_threshold <- param_data[which(data_for_epoch <= threshold), "tmp_length"]
+    
+    aboves_length[i] <- sum(over_threshold)
+    belows_length[i] <- sum(under_threshold)
+    
+    aboves_perc[i] <- 100*sum(over_threshold)/total_length
+    belows_perc[i] <- 100*sum(under_threshold)/total_length
+    
+    i <- i + 1
+  }
+  
+  df <- data.frame(epoch = as.numeric(epochs),
+                   lte_threshold_len = belows_length, 
+                   lte_threshold_perc = belows_perc,
+                   gt_threshold_len = aboves_length, 
+                   gt_threshold_perc = aboves_perc
+  )
+  
+  return (df)
+}
