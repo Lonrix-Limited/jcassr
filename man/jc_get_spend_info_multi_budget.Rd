@@ -8,6 +8,7 @@ jc_get_spend_info_multi_budget(
   budget_codes,
   budgets_file,
   network_length,
+  min_calendar_period,
   max_calendar_period,
   treats_file_base = "outputs/treatments_"
 )
@@ -23,8 +24,11 @@ each of these codes.}
 \item{network_length}{Network length from which the percentage of length
 treatment etc. can be calculated}
 
+\item{min_calendar_period}{minimum treatment period (in calendar terms) to
+consider (inclusive).}
+
 \item{max_calendar_period}{maximum treatment period (in calendar terms) to
-consider.}
+consider (inclusive).}
 
 \item{treats_file_base}{Relative path to the Excel file containing the
 treatments exported from jcass. This will not be the full file name, but only

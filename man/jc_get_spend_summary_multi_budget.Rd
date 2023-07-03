@@ -8,6 +8,7 @@ jc_get_spend_summary_multi_budget(
   budget_codes,
   budgets_file,
   network_length,
+  min_calendar_period,
   max_calendar_period,
   spend_params = c("avg_spend", "total_spend", "avg_perc", "total_perc", "avg_length",
     "total_length"),
@@ -25,8 +26,11 @@ each of these codes.}
 \item{network_length}{Network length from which the percentage of length
 treatment etc. can be calculated}
 
+\item{min_calendar_period}{minimum treatment period (in calendar terms) to
+consider (inclusive).}
+
 \item{max_calendar_period}{maximum treatment period (in calendar terms) to
-consider.}
+consider (inclusive).}
 
 \item{spend_params}{Vector of spending parameter codes for which to get the
 summary. Valid values are:
