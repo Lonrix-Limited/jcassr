@@ -8,7 +8,7 @@ jc_get_elem_forecast(
   elem_index,
   param_names,
   params_export_file,
-  identifiers_to_remove,
+  identifiers_to_retain,
   calendar_epochs,
   treatments
 )
@@ -22,9 +22,9 @@ Typically these will be all parameter names, which you can load from the
 
 \item{params_export_file}{relative path to the Parameter export/output file}
 
-\item{identifiers_to_remove}{Vector of the identifiers to remove from the
-resulting table (e.g. 'area_name', etc. as defined in model lookups under
-the 'general' list of the model setup file)}
+\item{identifiers_to_retain}{Vector of the identifiers to retain from
+amongst the identifiers included in the parameter export (e.g. 'area_name',
+etc. as defined in model lookups under the 'general' list of the model setup file)}
 
 \item{calendar_epochs}{Vector of calendar epochs for which to show forecast.
 You should ensure this vector matches the number of modelling periods exactly.}

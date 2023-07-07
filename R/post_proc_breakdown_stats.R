@@ -54,26 +54,40 @@ jc_get_breakdown_table <- function(param_data, epochs, bins) {
 #' @importFrom dplyr vars
 #'
 jc_get_breakdown_length_pct <- function(param_data, epochs, bins,
-                                     network_length,
-                                     loc_from_col = "loc_from",
-                                     loc_to_col = "loc_to") {
-
+                                        network_length,
+                                        loc_from_col = "loc_from",
+                                        loc_to_col = "loc_to") {
+  
   result <- NULL
   df <- .get_bin_breakdown(param_data, epochs, bins)
   df$length_var <- df[ , loc_to_col] - df[ , loc_from_col]
+  
+  bin_labels <- .get_cut_labels(bins)
+  n_labels <- length(bin_labels)
+  
   for (ep in epochs)  {
-
+    
     bin_col <- paste0("bin_", as.character(ep))
-    tmp <- df %>% group_by_at(vars(bin_col)) %>% summarise(
+    tmp1 <- df %>% group_by_at(vars(bin_col)) %>% summarise(
       dummy = sum(.data$length_var)
     )
-
+    
+    tmp <- data.frame(bin_col = bin_labels, dummy = rep(0, n_labels))
+    names(tmp) <- c(bin_col, "dummy")
+    for (lbl in bin_labels) {
+      sset <- tmp1[tmp1[bin_col] == lbl, "dummy"]
+      if (nrow(sset) == 1) {
+        value <- sset[[1, "dummy"]]
+        tmp[[bin_labels == lbl, "dummy"]] <- value
+      }
+    }
+    
     sum_col <- paste0(as.character(ep))
     if (is.null(result)) {
       result <- stats::setNames(data.frame(matrix(ncol = 1,
-                                           nrow = nrow(tmp))),
-                         c(sum_col))
-
+                                                  nrow = nrow(tmp))),
+                                c(sum_col))
+      
       result[, "bin"] <- tmp[ , bin_col]
     }
     result[ , sum_col] <- tmp$dummy
@@ -84,12 +98,47 @@ jc_get_breakdown_length_pct <- function(param_data, epochs, bins,
 }
 
 .get_bin_breakdown <- function(param_data, calendar_epochs, bins) {
-
+  
   for (ep in calendar_epochs)  {
-
     col_raw <- as.character(ep)
     col_name <- paste0("bin_", as.character(ep))
-    param_data[ , col_name] <- cut(param_data[ , col_raw], breaks = bins)
+    param_data[ , col_name] <- cut(param_data[ , col_raw], breaks = bins,
+                                   include.lowest = TRUE, right = FALSE)
   }
   return(param_data)
+}
+
+.get_cut_labels <- function(breaks, include.lowest = TRUE, right = FALSE) {
+  n <- length(breaks)-1
+  result <- rep(NA, n)
+  
+  for (i in 1:n) {
+    
+    low <- as.character(breaks[i])
+    high <- as.character(breaks[i+1])
+    
+    if (i == 1) {
+      if (include.lowest) {
+        lbl <- paste0("[", low,",")
+      }
+      else {
+        lbl <- paste0("(", low,",")
+      }
+    } else {
+      if (right) {
+        lbl <- paste0("(", low,",") 
+      } else {
+        lbl <- paste0("[", low,",")
+      }
+    }
+    
+    if (right || i == n) {
+      lbl <- paste0(lbl, high,"]")
+    }
+    else {
+      lbl <- paste0(lbl, high,")")
+    }
+    result[i] <- lbl
+  }
+  return(result)
 }

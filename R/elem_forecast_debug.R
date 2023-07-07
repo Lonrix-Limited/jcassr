@@ -10,9 +10,9 @@
 #' Typically these will be all parameter names, which you can load from the
 #' 'parameters' sheet in the model setup file
 #' @param params_export_file relative path to the Parameter export/output file
-#' @param identifiers_to_remove Vector of the identifiers to remove from the
-#' resulting table (e.g. 'area_name', etc. as defined in model lookups under
-#' the 'general' list of the model setup file)
+#' @param identifiers_to_retain Vector of the identifiers to retain from 
+#' amongst the identifiers included in the parameter export (e.g. 'area_name', 
+#' etc. as defined in model lookups under the 'general' list of the model setup file)
 #' @param calendar_epochs Vector of calendar epochs for which to show forecast.
 #' You should ensure this vector matches the number of modelling periods exactly.
 #' @param treatments Data Frame with treatments loaded from the jcass model
@@ -25,7 +25,7 @@
 #'
 jc_get_elem_forecast <- function(elem_index, param_names,
                                  params_export_file,
-                                 identifiers_to_remove,
+                                 identifiers_to_retain,
                                  calendar_epochs,
                                  treatments) {
   result <- NULL
@@ -41,11 +41,24 @@ jc_get_elem_forecast <- function(elem_index, param_names,
       result <- rbind(result, param_values)
     }
   }
-  result <- result %>% select(-all_of(identifiers_to_remove))
+  
+  cols_to_retain <- c()
+  for (col in names(result)) {
+    if (col == "parameter") {
+      cols_to_retain <- c(cols_to_retain, col)
+    } else if (col %in% identifiers_to_retain) {
+      cols_to_retain <- c(cols_to_retain, col)
+    } else if (col %in% calendar_epochs) {
+      cols_to_retain <- c(cols_to_retain, col)
+    }
+  }
+  
+  result <- result %>% select(all_of(cols_to_retain))
   result <- result %>% select(.data$parameter, everything()) #move parameter col to left
   result <- .add_treatments(result, elem_index, calendar_epochs, treatments)
   result <- rbind(result[nrow(result), ], result[-nrow(result), ]) # Move the bottom row to the top
   row.names(result) <- seq(1, nrow(result))
+  
   return(result)
 }
 

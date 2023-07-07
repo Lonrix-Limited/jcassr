@@ -37,8 +37,8 @@
   result <- NULL
   df <- as.data.frame(df)
   stat_cols <- grep("_obj", names(df), value = TRUE)
-  strat_codes <- c(NA, length(stat_cols))
-  strat_lbls <- c(NA, length(stat_cols))
+  strat_codes <- rep(NA, length(stat_cols))
+  strat_lbls <- rep(NA, length(stat_cols))
 
   i <- 1
   for (strat in stat_cols) {

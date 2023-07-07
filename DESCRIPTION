@@ -1,7 +1,7 @@
 Package: jcassr
 Type: Package
 Title: Utilities to use with JunoViewer Cassandra Deterioration Modelling Framework
-Version: 1.1.7
+Version: 1.1.9
 Authors@R: person("Fritz", "Jooste", email = "fritz@lonrix.com",
            role = c("aut", "cre"))
 Description: A package with utility tools for pre-processing and post-processing

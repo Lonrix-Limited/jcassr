@@ -311,7 +311,8 @@ jc_get_spend_summary_multi_budget <- function(budget_codes,
                                           budgets_file, spend_param,
                                           network_length, 
                                           min_calendar_period,
-                                          max_calendar_period)
+                                          max_calendar_period, 
+                                          treats_file_base = treats_file_base)
     if (is.null(result)) {
       result <- tmp
     } else {
