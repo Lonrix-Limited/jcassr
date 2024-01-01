@@ -15,12 +15,14 @@
 #' @param scale_fact Scaling factor for converting lengths. E.g. pass 1000 to 
 #' express the lengths in KM when the original lengths are in Metres.
 #' @export
+#' 
 jc_get_network_breakdown <- function(raw_data, group_col, loc_from_col, 
                                      loc_to_col, scale_fact = 1000) {
   
   network_length <- jc_get_network_length(raw_data, loc_from_col, loc_to_col)/1000
   raw_data[ , "grouper"] <- raw_data[ , group_col]
-  len_bkdn <- raw_data %>% group_by(.data$grouper) %>% summarise(
+  raw_data[ , "length"] <- raw_data[ , loc_to_col] - raw_data[ , loc_from_col]
+  len_bkdn <- raw_data %>% group_by(.data$grouper) %>% dplyr::summarise(
     count = dplyr::n(),
     length = sum(length)/1000,
     length_perc = round(100 * length/network_length,2)
@@ -49,7 +51,11 @@ jc_get_network_breakdown <- function(raw_data, group_col, loc_from_col,
 #' 'end' of each element
 #' @param scale_fact Scaling factor for converting lengths. E.g. pass 1000 to 
 #' express the lengths in KM when the original lengths are in Metres.
+#' @param length_decimals Number of decimals to show on the length column.
+#' @param percent_decimals Number of decimals to show on the percentage length
+#' column.
 #' @export
+#' 
 jc_get_network_breakdown_nice <- function(raw_data, group_col, 
                                           group_col_label, length_label, 
                                           loc_from_col, loc_to_col, 
@@ -98,6 +104,7 @@ jc_get_network_breakdown_nice <- function(raw_data, group_col,
 #' @param loc_to_col Name of the column that contains the 'to location' or
 #' 'end' of each element
 #' @export
+#' 
 jc_get_network_length <- function(raw_data, loc_from_col, loc_to_col) {
   
   # Calculate network length
